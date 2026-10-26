@@ -1,0 +1,6 @@
+{
+  "name": "AgriPulse - AI Smart Farm Management Platform",
+  "description": "Enterprise-grade precision agriculture and AI-powered smart farm management platform for real-time IoT monitoring, crop disease diagnostics, drone NDVI analytics, and automated irrigation optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
