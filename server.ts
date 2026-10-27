@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -10,6 +11,39 @@ const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json({ limit: '20mb' }));
+
+// Supabase token verifier: use the public publishable key and validate sessions with Auth.
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseAuth = supabaseUrl && supabasePublishableKey
+  ? createClient(supabaseUrl, supabasePublishableKey, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    })
+  : null;
+
+// All /api handlers require a valid access token, except the public health probe.
+app.use('/api', async (req, res, next) => {
+  if (req.path === '/health') return next();
+  if (!supabaseAuth) {
+    return res.status(503).json({ error: 'Supabase Auth belum dikonfigurasi di server.' });
+  }
+
+  const token = req.headers.authorization?.match(/^Bearer\\s+(.+)$/i)?.[1];
+  if (!token) return res.status(401).json({ error: 'Autentikasi diperlukan.' });
+
+  try {
+    const { data, error } = await supabaseAuth.auth.getUser(token);
+    if (error || !data.user) {
+      return res.status(401).json({ error: 'Sesi tidak valid atau sudah kedaluwarsa. Silakan login kembali.' });
+    }
+    res.locals.authUser = data.user;
+    return next();
+  } catch (error) {
+    console.error('Supabase token verification failed:', error);
+    return res.status(503).json({ error: 'Layanan autentikasi sementara tidak tersedia.' });
+  }
+});
+
 
 // Server-side initialization of Gemini client according to modern @google/genai guidelines
 const ai = new GoogleGenAI({
