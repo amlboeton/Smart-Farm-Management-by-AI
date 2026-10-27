@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PRELOADED_LEAF_SAMPLES } from '../data/mockFarmData';
 import { DiseaseDiagnosisResult, FarmZone } from '../types/farm';
+import { authenticatedFetch } from '../lib/api';
 
 interface DiseaseDiagnosticLabProps {
   selectedZone: FarmZone;
@@ -43,7 +44,7 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
         fieldZone: selectedZone.name,
       };
 
-      const res = await fetch('/api/analyze-crop', {
+      const res = await authenticatedFetch('/api/analyze-crop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
