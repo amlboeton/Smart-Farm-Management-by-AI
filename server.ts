@@ -28,7 +28,7 @@ app.use('/api', async (req, res, next) => {
     return res.status(503).json({ error: 'Supabase Auth belum dikonfigurasi di server.' });
   }
 
-  const token = req.headers.authorization?.match(/^Bearer\\s+(.+)$/i)?.[1];
+  const token = req.headers.authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) return res.status(401).json({ error: 'Autentikasi diperlukan.' });
 
   try {
