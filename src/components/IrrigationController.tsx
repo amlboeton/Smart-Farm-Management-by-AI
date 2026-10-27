@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FarmZone, WeatherDay } from '../types/farm';
+import { authenticatedFetch } from '../lib/api';
 
 interface IrrigationControllerProps {
   zone: FarmZone;
@@ -31,7 +32,7 @@ export const IrrigationController: React.FC<IrrigationControllerProps> = ({
   const handleRunAiOptimization = async () => {
     setIsOptimizing(true);
     try {
-      const res = await fetch('/api/optimize-irrigation', {
+      const res = await authenticatedFetch('/api/optimize-irrigation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
