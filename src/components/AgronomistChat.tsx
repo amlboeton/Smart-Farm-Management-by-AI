@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FarmZone, WeatherDay } from '../types/farm';
+import { authenticatedFetch } from '../lib/api';
 
 interface AgronomistChatProps {
   selectedZone: FarmZone;
@@ -65,7 +66,7 @@ Saat ini kelembaban tanah tercatat ${selectedZone.sensors.soilMoisture}%, pH ${s
         irrigationState: selectedZone.irrigation.valveStatus,
       };
 
-      const res = await fetch('/api/ask-agronomist', {
+      const res = await authenticatedFetch('/api/ask-agronomist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
