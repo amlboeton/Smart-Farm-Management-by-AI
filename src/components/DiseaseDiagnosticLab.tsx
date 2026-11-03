@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PRELOADED_LEAF_SAMPLES } from '../data/mockFarmData';
 import { DiseaseDiagnosisResult, FarmZone } from '../types/farm';
+import { getStoredItem, setStoredItem, STORAGE_KEYS } from '../utils/storage';
 
 interface DiseaseDiagnosticLabProps {
   selectedZone: FarmZone;
+}
+
+interface SavedDiagnosisEntry {
+  id: string;
+  timestamp: string;
+  cropType: string;
+  zoneName: string;
+  result: DiseaseDiagnosisResult;
+  imagePreview: string;
 }
 
 export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ selectedZone }) => {
@@ -17,7 +27,17 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
   const [diagnosisResult, setDiagnosisResult] = useState<DiseaseDiagnosisResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Load saved history from local storage
+  const [savedHistory, setSavedHistory] = useState<SavedDiagnosisEntry[]>(() => {
+    return getStoredItem<SavedDiagnosisEntry[]>(STORAGE_KEYS.DIAGNOSIS_HISTORY, []);
+  });
+
   const activeImage = customImage || selectedSample.image;
+
+  // Persist history to local storage
+  useEffect(() => {
+    setStoredItem(STORAGE_KEYS.DIAGNOSIS_HISTORY, savedHistory);
+  }, [savedHistory]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,6 +49,24 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const saveToHistory = (res: DiseaseDiagnosisResult) => {
+    const newEntry: SavedDiagnosisEntry = {
+      id: `diag-${Date.now()}`,
+      timestamp: new Date().toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      cropType,
+      zoneName: selectedZone.name,
+      result: res,
+      imagePreview: activeImage,
+    };
+    setSavedHistory((prev) => [newEntry, ...prev.slice(0, 9)]); // keep latest 10
   };
 
   const handleRunDiagnosis = async () => {
@@ -55,11 +93,11 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
 
       const data = await res.json();
       setDiagnosisResult(data);
+      saveToHistory(data);
     } catch (err: any) {
       console.error('Diagnosis failed:', err);
       setErrorMessage('Terjadi gangguan saat memproses analisis citra daun. Menampilkan hasil diagnosa berbasis model patologi lokal.');
-      // Robust fallback response
-      setDiagnosisResult({
+      const fallbackResult: DiseaseDiagnosisResult = {
         diseaseName: 'Hawar Daun Jagung (Bipolaris maydis / Southern Corn Leaf Blight)',
         confidenceScore: 94,
         severityLevel: 'Sedang',
@@ -80,10 +118,16 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
           'Gunakan varietas tahan hawar daun untuk siklus tanam berikutnya',
           'Atur jarak tanam minimal 75 x 20 cm agar sirkulasi udara kanopi lancar'
         ]
-      });
+      };
+      setDiagnosisResult(fallbackResult);
+      saveToHistory(fallbackResult);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClearHistory = () => {
+    setSavedHistory([]);
   };
 
   return (
@@ -97,13 +141,13 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
               <span aria-hidden="true">·</span>
               <span>Gemini 3.8 Flash Vision</span>
               <span aria-hidden="true">·</span>
-              <span>Plant Pathology Model</span>
+              <span>Tersimpan di Local Storage</span>
             </div>
             <h2 className="text-lg font-bold text-white">
               Laboratorium Diagnosa Penyakit & Patologi Tanaman Berbasis AI
             </h2>
             <p className="text-xs text-neutral-300 mt-1 max-w-2xl leading-relaxed">
-              Unggah foto daun atau pilih sampel lapangan untuk mendeteksi serangan jamur, bakteri, defisiensi nutrisi, serta mendapatkan protokol penanganan organik maupun kimiawi yang aman.
+              Unggah foto daun atau pilih sampel lapangan untuk mendeteksi serangan jamur, bakteri, defisiensi nutrisi, serta mendapatkan protokol penanganan organik maupun kimiawi yang tersimpan di local storage.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -316,6 +360,45 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
           )}
         </div>
       </div>
+
+      {/* Local Storage Saved Diagnosis History */}
+      {savedHistory.length > 0 && (
+        <div className="p-5 rounded-xl bg-neutral-900 border border-neutral-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-semibold text-white">Riwayat Diagnosa Terkini (Local Storage)</span>
+              <p className="text-[11px] text-neutral-400">Tersimpan otomatis di browser lokal Anda</p>
+            </div>
+            <button
+              onClick={handleClearHistory}
+              className="text-[11px] text-neutral-400 hover:text-neutral-200 px-2.5 py-1 rounded border border-neutral-800 hover:bg-neutral-800 transition-colors"
+            >
+              Hapus Riwayat
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {savedHistory.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setDiagnosisResult(item.result)}
+                className="p-3 rounded-lg bg-neutral-950/70 border border-neutral-800/80 hover:border-emerald-500/40 cursor-pointer transition-colors text-xs flex gap-3"
+              >
+                <img
+                  src={item.imagePreview}
+                  alt={item.result.diseaseName}
+                  className="w-12 h-12 rounded object-cover shrink-0 border border-neutral-800"
+                />
+                <div className="overflow-hidden">
+                  <div className="font-semibold text-white truncate">{item.result.diseaseName}</div>
+                  <div className="text-[11px] text-neutral-400 truncate">{item.cropType} · {item.result.severityLevel}</div>
+                  <div className="text-[10px] text-neutral-500 font-mono mt-0.5">{item.timestamp}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

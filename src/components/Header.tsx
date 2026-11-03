@@ -31,6 +31,14 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenK
             Dashboard
           </button>
           <button
+            onClick={() => setActiveTab('geospatial')}
+            className={`transition-colors whitespace-nowrap shrink-0 hover:text-neutral-100 ${
+              activeTab === 'geospatial' ? 'text-emerald-400 font-semibold' : ''
+            }`}
+          >
+            Peta & IoT
+          </button>
+          <button
             onClick={() => setActiveTab('diagnosis')}
             className={`transition-colors whitespace-nowrap shrink-0 hover:text-neutral-100 ${
               activeTab === 'diagnosis' ? 'text-emerald-400 font-semibold' : ''

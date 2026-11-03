@@ -1,3 +1,26 @@
+export interface FarmLocation {
+  name: string;
+  companyName: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  region: string;
+  altitudeMeters: number;
+}
+
+export interface TelemetryNetworkStatus {
+  protocol: 'LoRaWAN AS923' | 'Cellular NB-IoT Band 8';
+  gatewayId: string;
+  nodeId: string;
+  frequencyMhz: number;
+  rssiDbm: number;
+  snrDb: number;
+  packetLossPercent: number;
+  batteryPercent: number;
+  lastUplink: string;
+}
+
 export interface FarmZone {
   id: string;
   name: string;
@@ -10,6 +33,8 @@ export interface FarmZone {
   stage: string;
   healthScore: number;
   image: string;
+  location: FarmLocation;
+  telemetryNetwork: TelemetryNetworkStatus;
   sensors: {
     soilMoisture: number; // percentage
     soilTemp: number; // Celsius
@@ -64,4 +89,16 @@ export interface WeatherDay {
   rainProbability: number;
   et0: number; // Evapotranspiration in mm/day
   windSpeedKmh: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  timestamp: string;
+  groundingType?: 'search' | 'maps' | 'standard';
+  groundingSources?: {
+    title: string;
+    url: string;
+  }[];
 }
