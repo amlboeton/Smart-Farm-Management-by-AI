@@ -151,10 +151,14 @@ Balas dalam format JSON murni dengan struktur persis berikut:
 app.post('/api/agri-search', async (req, res) => {
   try {
     const { query, category } = req.body;
-    const userPrompt = query || `Update harga komoditas jagung, tomat beef, dan paprika merah terkini di wilayah Jawa Barat dan pasar induk Jabodetabek serta tren cuaca pertanian Cianjur.`;
+    const userPrompt = query || `Update harga komoditas tomat beef, tomat ceri, selada romaine, baby spinach, dan jagung manis hokaido terkini di wilayah Jawa Barat dan pasar induk Jabodetabek serta tren cuaca pertanian Cianjur.`;
 
     const systemInstruction = `
 Anda adalah Analis Riset Pasar & Intelijen Agrikultur untuk kebun PT Agricole Indonesia Makmur (Cipanas, Cianjur, Jawa Barat).
+Total Luas Lahan: 10,9 Ha (Batas Poligon Hijau).
+Komoditas Kebun:
+- Greenhouse (3,2 Ha): Tomat Beef dan Tomat Ceri
+- Open Field (7,7 Ha): Selada Romaine, Baby Spinach, dan Jagung Hokaido
 Gunakan data Google Search terkini untuk memberikan fakta dan angka aktual tentang harga pasar, cuaca pertanian BMKG, tren pasokan, dan rekomendasi harga jual panen.
 Sajikan dengan terstruktur, profesional, dan cantumkan estimasi rentang harga (Rp/kg) serta sumber rujukan secara jelas.
 `;
@@ -187,13 +191,13 @@ Sajikan dengan terstruktur, profesional, dan cantumkan estimasi rentang harga (R
   } catch (error: any) {
     console.error('Error in agri-search:', error);
     res.json({
-      reply: `Data Pasar Agrikultur & BMKG Terkini (Wilayah Cianjur & Pasar Induk Jawa Barat):\n\n1. **Jagung Pipil Kering (Kadar Air 14%)**: Rp 6.150 - Rp 6.500 / kg (Permintaan stabil industri pakan ternak).\n2. **Tomat Beef Premium Green House**: Rp 15.500 - Rp 19.000 / kg (Kualitas ekspor / retail horeka).\n3. **Paprika Merah**: Rp 32.000 - Rp 38.000 / kg (Harga menguat akibat pasokan dataran tinggi terbatas).\n4. **Update Cuaca BMKG**: Wilayah Cipanas / Sukaresmi berpotensi hujan intensitas ringan-sedang sore hari (15.00-18.00 WIB) dengan kelembaban relatif 78-90%.\n\n*Catatan Agronomi: Sesuaikan laju debit katup fertigasi sebelum jam 14:00 WIB untuk mencegah kejenuhan air tanah.*`,
+      reply: `Data Pasar Agrikultur & BMKG Terkini (Wilayah Cianjur & Pasar Induk Jawa Barat):\n\n1. **Tomat Beef Premium Green House**: Rp 16.000 - Rp 19.500 / kg (Kualitas horeka & ekspor).\n2. **Tomat Ceri Hidroponik**: Rp 26.000 - Rp 34.000 / kg (Permintaan tinggi retail modern).\n3. **Selada Romaine Segar**: Rp 14.500 - Rp 18.000 / kg (Pasokan stabil pegunungan Cipanas).\n4. **Baby Spinach (Bayam Jepang/Horenso)**: Rp 22.000 - Rp 28.000 / kg.\n5. **Jagung Manis Hokaido Super Sweet**: Rp 9.000 - Rp 12.500 / kg.\n6. **Update Cuaca BMKG**: Wilayah Cipanas / Sukaresmi berpotensi hujan intensitas ringan-sedang sore hari (15.00-18.00 WIB) dengan kelembaban relatif 78-90%.\n\n*Catatan Agronomi: Sesuaikan laju debit katup fertigasi sebelum jam 14:00 WIB untuk mencegah kejenuhan air tanah.*`,
       sources: [
         { title: 'Badan Pangan Nasional - Panel Harga Pangan', url: 'https://panelharga.badanpangan.go.id' },
         { title: 'BMKG - Prakiraan Cuaca Kecamatan Sukaresmi & Cipanas', url: 'https://www.bmkg.go.id' },
         { title: 'Pusat Informasi Harga Pangan Strategis (PIHPS)', url: 'https://hargapangan.id' }
       ],
-      queries: ['harga jagung pipil hari ini', 'harga tomat sayur jawa barat', 'cuaca bmkg cianjur'],
+      queries: ['harga tomat beef hari ini', 'harga tomat ceri hidroponik', 'harga selada romaine jabar', 'cuaca bmkg cianjur'],
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     });
   }
@@ -209,8 +213,8 @@ app.post('/api/agri-maps', async (req, res) => {
     const userPrompt = query || `Rekomendasikan toko sarana pertanian, distributor pupuk & pestisida resmi, kios bibit tanaman hortikultura, serta fasilitas logistik pertanian terdekat di sekitar koordinat ${farmLat}, ${farmLng} (Kawasan Cipanas / Sukaresmi, Kabupaten Cianjur, Jawa Barat).`;
 
     const systemInstruction = `
-Anda adalah Koordinator Geospasial & Logistik Lapangan di kebun PT Agricole Indonesia Makmur (Koordinat: ${farmLat}, ${farmLng}, Cipanas, Cianjur, Jawa Barat).
-Gunakan Google Maps data grounding untuk menemukan tempat, distributor sarana produksi pertanian (saprotan), kios bibit, pos penyuluhan pertanian, dan pasar sayur terdekat di wilayah Cipanas, Pacet, Sukaresmi, dan Cianjur.
+Anda adalah Koordinator Geospasial & Logistik Lapangan di kebun PT Agricole Indonesia Makmur (Koordinat: ${farmLat}, ${farmLng}, Cipanas, Cianjur, Jawa Barat, Luas: 10,9 Ha).
+Gunakan Google Maps data grounding untuk menemukan tempat, distributor sarana produksi pertanian (saprotan), kios bibit tomat, selada, dan jagung hokaido, pos penyuluhan pertanian, dan pasar sayur terdekat di wilayah Cipanas, Pacet, Sukaresmi, dan Cianjur.
 Sertakan nama tempat, estimasi jarak/aksesibilitas dari kebun, dan tips pengadaan barang.
 `;
 
@@ -231,7 +235,7 @@ Sertakan nama tempat, estimasi jarak/aksesibilitas dari kebun, dan tips pengadaa
   } catch (error: any) {
     console.error('Error in agri-maps:', error);
     res.json({
-      reply: `Fasilitas Sarana Pertanian & Logistik Terdekat dari Kebun PT Agricole Indonesia Makmur (-6.753266, 107.017472, Sukaresmi / Cipanas, Cianjur):\n\n1. **Kios Pertanian & Distributor Saprotan Tani Mandiri Cipanas** (~2.6 km)\n- Layanan: Pupuk NPK granular resmi, fungisida sistemik, benih jagung hibrida P32 Singa, dan perlengkapan selang tetes PE.\n- Akses: Jl. Raya Cipanas - Sukaresmi No. 42.\n\n2. **Pusat Benih & Bibit Hortikultura Pacet** (~4.1 km)\n- Layanan: Bibit tomat beef semai baki, media tanam cocopeat steril, dan rockwool hidroponik greenhouse.\n\n3. **Balai Penyuluhan Pertanian (BPP) Sukaresmi** (~3.3 km)\n- Layanan: Koordinasi kelompok tani, pengujian pH tanah laboratorium lapangan, dan rekomendasi OPT setempat.\n\n4. **Pasar Induk Sayur Cipanas (Sentra Pengumpul)** (~5.2 km)\n- Layanan: Hub distribusi komoditas sayuran segar ke pasar Jabodetabek dan Bandung Raya.`,
+      reply: `Fasilitas Sarana Pertanian & Logistik Terdekat dari Kebun PT Agricole Indonesia Makmur (-6.753266, 107.017472, Sukaresmi / Cipanas, Cianjur):\n\n1. **Kios Pertanian & Distributor Saprotan Tani Mandiri Cipanas** (~2.6 km)\n- Layanan: Pupuk NPK granular resmi, fungisida sistemik, benih tomat & selada, dan perlengkapan selang tetes PE.\n- Akses: Jl. Raya Cipanas - Sukaresmi No. 42.\n\n2. **Pusat Benih & Bibit Hortikultura Pacet** (~4.1 km)\n- Layanan: Bibit tomat beef & ceri semai baki, media tanam cocopeat steril, dan rockwool hidroponik greenhouse.\n\n3. **Balai Penyuluhan Pertanian (BPP) Sukaresmi** (~3.3 km)\n- Layanan: Koordinasi kelompok tani, pengujian pH tanah laboratorium lapangan, dan rekomendasi OPT setempat.\n\n4. **Pasar Induk Sayur Cipanas (Sentra Pengumpul)** (~5.2 km)\n- Layanan: Hub distribusi komoditas sayuran segar ke pasar Jabodetabek dan Bandung Raya.`,
       farmCoordinates: { lat: -6.7532660826354585, lng: 107.01747234233768 },
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     });
@@ -248,24 +252,27 @@ Anda adalah "AgriPulse AI", Kepala Agronom dan Konsultan Pertanian Presisi Senio
 Profil Kebun:
 - Pemilik/Badan Usaha: PT Agricole Indonesia Makmur
 - Titik Koordinat: -6.7532660826354585, 107.01747234233768 (Kec. Sukaresmi / Cipanas, Kab. Cianjur, Jawa Barat)
+- Total Luas Lahan: 10,9 Hektar (Terverifikasi batas poligon garis hijau survei drone)
 - Elevasi: ~1.085 mdpl (Iklim Sejuk Dataran Tinggi Pegunungan)
+- Komoditas yang Ditanam:
+  1. Kompleks Smart Greenhouse (3,2 Ha): Tomat Beef (1,8 Ha) & Tomat Ceri (1,4 Ha)
+  2. Open Field / Lahan Terbuka (7,7 Ha): Selada Romaine & Baby Spinach (3,5 Ha) serta Jagung Hokaido (4,2 Ha)
 - Jaringan Telemetri Sensor: Protokol LoRaWAN AS923 (923.2 MHz) & Cellular NB-IoT Band 8
 - Gateway: GW-AGRICOLE-01 (Tower Sentral Kebun)
-- Komoditas Unggulan: Blok A Lapangan Jagung Hibrida P32 Singa (14.5 Ha) & Blok B Smart Greenhouse Hidroponik Tomat Beef & Paprika (2.8 Ha)
 
 Data Telemetri Real-Time Lahan Saat Ini:
 - Zona Aktif: ${farmContext?.zoneName || 'Blok Kebun PT Agricole'}
-- Kelembaban Tanah: ${farmContext?.soilMoisture || '42'}% (Target: ${farmContext?.targetMoisture || '50'}%)
-- Suhu Tanah: ${farmContext?.soilTemp || '26.4'}°C | Suhu Udara: ${farmContext?.ambientTemp || '29.8'}°C
-- pH Tanah: ${farmContext?.soilPh || '6.5'} (Ideal: 6.0 - 6.8)
-- NPK Tanah: N: ${farmContext?.nitrogen || '142'} mg/kg, P: ${farmContext?.phosphorus || '38'} mg/kg, K: ${farmContext?.potassium || '195'} mg/kg
-- VPD Kanopi: ${farmContext?.vpd || '1.15'} kPa | Radiasi Surya: ${farmContext?.solarRadiation || '780'} W/m²
-- Status Katup Irigasi: ${farmContext?.valveStatus || 'AUTO'} (Debit: ${farmContext?.flowRate || '120'} LPM)
-- Jaringan: LoRaWAN RSSI -78 dBm, SNR 9.4 dB (Koneksi Prima)
+- Kelembaban Tanah: ${farmContext?.soilMoisture || '48'}% (Target: ${farmContext?.targetMoisture || '55'}%)
+- Suhu Tanah: ${farmContext?.soilTemp || '24.8'}°C | Suhu Udara: ${farmContext?.ambientTemp || '26.8'}°C
+- pH Tanah: ${farmContext?.soilPh || '6.4'} (Ideal: 6.0 - 6.8)
+- NPK Tanah: N: ${farmContext?.nitrogen || '175'} mg/kg, P: ${farmContext?.phosphorus || '45'} mg/kg, K: ${farmContext?.potassium || '225'} mg/kg
+- VPD Kanopi: ${farmContext?.vpd || '0.98'} kPa | Radiasi Surya: ${farmContext?.solarRadiation || '680'} W/m²
+- Status Katup Irigasi: ${farmContext?.valveStatus || 'AUTO'} (Debit: ${farmContext?.flowRate || '85'} LPM)
+- Jaringan: LoRaWAN / NB-IoT Koneksi Prima (Paket Loss 0.0%)
 
 Karakter & Gaya Komunikasi:
 1. Lugas, berbasis data sains agronomi presisi, sopan, dan berwibawa.
-2. Berikan solusi praktis langsung (actionable steps) yang mempertimbangkan iklim mikro Cipanas/Cianjur.
+2. Berikan solusi praktis langsung (actionable steps) yang mempertimbangkan iklim mikro Cipanas/Cianjur dan komoditas spesifik kebun (Tomat Beef, Tomat Ceri, Selada Romaine, Baby Spinach, Jagung Hokaido).
 3. Gunakan formatting rapi dengan bullet points dan cetak tebal pada poin penting.
 `;
 

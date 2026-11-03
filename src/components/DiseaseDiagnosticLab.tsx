@@ -39,6 +39,13 @@ export const DiseaseDiagnosticLab: React.FC<DiseaseDiagnosticLabProps> = ({ sele
     setStoredItem(STORAGE_KEYS.DIAGNOSIS_HISTORY, savedHistory);
   }, [savedHistory]);
 
+  // Sync cropType when selectedZone changes
+  useEffect(() => {
+    if (selectedZone?.crop) {
+      setCropType(selectedZone.crop);
+    }
+  }, [selectedZone]);
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

@@ -63,18 +63,22 @@ export const FieldGeospatialMap: React.FC<FieldGeospatialMapProps> = ({ selected
     }
   };
 
+  const [mapMode, setMapMode] = useState<'osm' | 'drone_3d' | 'boundary_ortho'>('drone_3d');
+
   return (
     <div className="space-y-6">
       {/* Location & LoRaWAN / NB-IoT Header */}
       <div className="p-5 rounded-xl bg-neutral-900 border border-neutral-800">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs text-neutral-400 mb-1">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400 mb-1">
               <span className="text-emerald-400 font-semibold">{location.companyName}</span>
               <span aria-hidden="true">·</span>
               <span className="font-mono text-neutral-300">
                 GPS: {location.coordinates.lat.toFixed(6)}, {location.coordinates.lng.toFixed(6)}
               </span>
+              <span aria-hidden="true">·</span>
+              <span>Total Luas: 10,9 Ha</span>
               <span aria-hidden="true">·</span>
               <span>Elevasi: {location.altitudeMeters} mdpl</span>
             </div>
@@ -82,7 +86,7 @@ export const FieldGeospatialMap: React.FC<FieldGeospatialMapProps> = ({ selected
               {location.name}
             </h2>
             <p className="text-xs text-neutral-400 mt-0.5">
-              {location.region}
+              {location.region} · Batas poligon hijau terverifikasi 10,9 Ha
             </p>
           </div>
 
@@ -128,14 +132,14 @@ export const FieldGeospatialMap: React.FC<FieldGeospatialMapProps> = ({ selected
       </div>
 
       {/* Tabs for Map Visual, Maps Grounding, and Search Grounding */}
-      <div className="flex items-center gap-2 p-1 bg-neutral-950 rounded-lg border border-neutral-800 w-fit text-xs">
+      <div className="flex flex-wrap items-center gap-2 p-1 bg-neutral-950 rounded-lg border border-neutral-800 w-fit text-xs">
         <button
           onClick={() => setActiveTab('map')}
           className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
             activeTab === 'map' ? 'bg-neutral-800 text-white shadow-xs' : 'text-neutral-400 hover:text-neutral-200'
           }`}
         >
-          Peta Satelit Kebun & Node IoT
+          Peta & Citra Drone Lahan 10,9 Ha
         </button>
         <button
           onClick={() => { setActiveTab('maps_grounding'); if (!mapsResult) handleQueryMapsGrounding(); }}
@@ -159,27 +163,79 @@ export const FieldGeospatialMap: React.FC<FieldGeospatialMapProps> = ({ selected
       {activeTab === 'map' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 p-4 rounded-xl bg-neutral-900 border border-neutral-800 space-y-3">
+            {/* Map Mode Sub-selector */}
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-800 text-xs">
+              <span className="text-neutral-400 font-medium">Layer Tampilan:</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setMapMode('drone_3d')}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                    mapMode === 'drone_3d' ? 'bg-emerald-500 text-neutral-950 font-bold' : 'bg-neutral-950 text-neutral-400 hover:text-neutral-200 border border-neutral-800'
+                  }`}
+                >
+                  🛸 Visual 3D Drone
+                </button>
+                <button
+                  onClick={() => setMapMode('boundary_ortho')}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                    mapMode === 'boundary_ortho' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold' : 'bg-neutral-950 text-neutral-400 hover:text-neutral-200 border border-neutral-800'
+                  }`}
+                >
+                  🟩 Batas Lahan 10,9 Ha
+                </button>
+                <button
+                  onClick={() => setMapMode('osm')}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                    mapMode === 'osm' ? 'bg-neutral-800 text-white font-bold' : 'bg-neutral-950 text-neutral-400 hover:text-neutral-200 border border-neutral-800'
+                  }`}
+                >
+                  🗺️ Peta GPS Jalan
+                </button>
+              </div>
+            </div>
+
             <div className="relative aspect-16/10 rounded-lg overflow-hidden border border-neutral-800 bg-neutral-950">
-              {/* Embedded Interactive Map pointing to -6.753266, 107.017472 */}
-              <iframe
-                title="Peta Kebun PT Agricole Indonesia Makmur"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=107.007472%2C-6.763266%2C107.027472%2C-6.743266&layer=mapnik&marker=${location.coordinates.lat}%2C${location.coordinates.lng}`}
-              ></iframe>
+              {mapMode === 'osm' && (
+                <iframe
+                  title="Peta Kebun PT Agricole Indonesia Makmur"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=107.007472%2C-6.763266%2C107.027472%2C-6.743266&layer=mapnik&marker=${location.coordinates.lat}%2C${location.coordinates.lng}`}
+                ></iframe>
+              )}
+
+              {mapMode === 'drone_3d' && (
+                <img
+                  src="/assets/aistudio/Agricole_3D_8f635ebb.jpeg"
+                  alt="Visual 3D drone lahan PT Agricole"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              )}
+
+              {mapMode === 'boundary_ortho' && (
+                <img
+                  src="/assets/aistudio/image_7e3cc4dd.png"
+                  alt="Peta ortofoto batas poligon hijau 10,9 Ha PT Agricole"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              )}
 
               {/* Coordinates Pill Badge Overlay */}
               <div className="absolute top-3 left-3 bg-neutral-950/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-neutral-800 text-xs font-mono">
-                <span className="text-emerald-400 font-bold">PT Agricole Farm</span>: -6.753266, 107.017472
+                <span className="text-emerald-400 font-bold">PT Agricole (10,9 Ha)</span>: -6.753266, 107.017472
               </div>
 
-              {/* LoRaWAN Station Overlay */}
+              {/* Legend Overlay */}
               <div className="absolute bottom-3 left-3 bg-neutral-950/90 backdrop-blur-md p-2.5 rounded-lg border border-neutral-800 text-[11px] text-neutral-300 space-y-1">
-                <div className="font-semibold text-white">Base Station Telemetri:</div>
-                <div className="text-emerald-400 font-mono">GW-AGRICOLE-01 (Jangkauan Radius 12 km)</div>
-                <div className="text-neutral-400">Frekuensi: 923.2 MHz AS923 · LoRa Spreading Factor: SF7</div>
+                <div className="font-semibold text-white">
+                  {mapMode === 'boundary_ortho' ? 'Garis Poligon Hijau: Batas Kepemilikan 10,9 Ha' : mapMode === 'drone_3d' ? 'Fotogrametri 3D Drone PT Agricole' : 'Base Station Telemetri Sentral:'}
+                </div>
+                <div className="text-emerald-400 font-mono">GW-AGRICOLE-01 (LoRaWAN AS923 923.2 MHz)</div>
+                <div className="text-neutral-400">Greenhouse: Tomat Beef & Ceri (3,2 Ha) · Open Field: Selada, Spinach, Jagung (7,7 Ha)</div>
               </div>
             </div>
           </div>
@@ -187,33 +243,47 @@ export const FieldGeospatialMap: React.FC<FieldGeospatialMapProps> = ({ selected
           {/* Right Sektor Nodes Inspector */}
           <div className="lg:col-span-4 space-y-4">
             <div className="p-5 rounded-xl bg-neutral-900 border border-neutral-800 space-y-3">
-              <span className="text-xs font-semibold text-white block">Node Telemetri Aktif di Lapangan</span>
-
-              <div className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs space-y-1">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-emerald-400">Node A1 (Blok Jagung)</span>
-                  <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded">LoRaWAN</span>
-                </div>
-                <p className="text-[11px] text-neutral-400">Sensor Tanah TDR 3-in-1 (Moisture, Temp, EC) kedalaman 25 cm.</p>
-                <div className="text-[10px] text-neutral-500 font-mono pt-1">ID: NODE-AGRICOLE-A1 · Baterai 96%</div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-white block">Node Telemetri Aktif Lapangan</span>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">
+                  4 Blok Terpantau
+                </span>
               </div>
 
               <div className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-sky-400">Node B1 (Greenhouse Tomat)</span>
+                  <span className="font-semibold text-emerald-400">GH-1: Tomat Beef (1,8 Ha)</span>
                   <span className="text-[10px] font-mono text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded">NB-IoT</span>
                 </div>
-                <p className="text-[11px] text-neutral-400">Sensor Mikroklimat SHT4x + probe pH Ion-ISFET fertigasi.</p>
-                <div className="text-[10px] text-neutral-500 font-mono pt-1">ID: NODE-AGRICOLE-B1 · Baterai 98%</div>
+                <p className="text-[11px] text-neutral-400">Greenhouse hidroponik substrat cocopeat + sensor SHT4x.</p>
+                <div className="text-[10px] text-neutral-500 font-mono pt-1">ID: NODE-AGRICOLE-GH1 · Baterai 98%</div>
               </div>
 
               <div className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-amber-400">Katup Solenoid Irigasi</span>
-                  <span className="text-[10px] font-mono text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded">Aktuator</span>
+                  <span className="font-semibold text-sky-400">GH-2: Tomat Ceri (1,4 Ha)</span>
+                  <span className="text-[10px] font-mono text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded">NB-IoT</span>
                 </div>
-                <p className="text-[11px] text-neutral-400">Relay kontrol 12V otomatis terhubung dengan engine AI.</p>
-                <div className="text-[10px] text-neutral-500 font-mono pt-1">Status: {selectedZone.irrigation.valveStatus} (120 LPM)</div>
+                <p className="text-[11px] text-neutral-400">Sweet cherry hidroponik dengan kontrol katup EC fertigasi.</p>
+                <div className="text-[10px] text-neutral-500 font-mono pt-1">ID: NODE-AGRICOLE-GH2 · Baterai 99%</div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-lime-400">OF-1: Selada & Baby Spinach (3,5 Ha)</span>
+                  <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded">LoRaWAN</span>
+                </div>
+                <p className="text-[11px] text-neutral-400">Bedengan mulsa perak-hitam dengan probe TDR kelembaban.</p>
+                <div className="text-[10px] text-neutral-500 font-mono pt-1">ID: NODE-AGRICOLE-OF1 · Baterai 95%</div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-amber-400">OF-2: Jagung Hokaido (4,2 Ha)</span>
+                  <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded">LoRaWAN</span>
+                </div>
+                <p className="text-[11px] text-neutral-400">Lahan terbuka terasering dengan sensorik NPK & debit air.</p>
+                <div className="text-[10px] text-neutral-500 font-mono pt-1">ID: NODE-AGRICOLE-OF2 · Baterai 94%</div>
               </div>
             </div>
           </div>

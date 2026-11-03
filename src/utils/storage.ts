@@ -4,8 +4,8 @@
  */
 
 export const STORAGE_KEYS = {
-  ZONES: 'agripulse_zones_v3',
-  SELECTED_ZONE_ID: 'agripulse_selected_zone_id_v3',
+  ZONES: 'agripulse_zones_v4',
+  SELECTED_ZONE_ID: 'agripulse_selected_zone_id_v4',
   ACTIVE_TAB: 'agripulse_active_tab_v1',
   DIAGNOSIS_HISTORY: 'agripulse_diagnosis_history_v1',
   AGRONOMIST_MESSAGES: 'agripulse_agronomist_messages_v1',

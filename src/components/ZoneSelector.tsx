@@ -20,9 +20,14 @@ export const ZoneSelector: React.FC<ZoneSelectorProps> = ({
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl bg-neutral-900 border border-neutral-800">
       {/* Zone Tabs */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-neutral-400 mr-1 uppercase tracking-wider">
-          Zona Lahan:
-        </span>
+        <div className="flex items-center gap-1.5 mr-1">
+          <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+            Zona Lahan:
+          </span>
+          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+            Total 10,9 Ha
+          </span>
+        </div>
         {zones.map((zone) => {
           const isSelected = zone.id === selectedZone.id;
           return (
@@ -35,8 +40,13 @@ export const ZoneSelector: React.FC<ZoneSelectorProps> = ({
                   : 'bg-neutral-800/80 text-neutral-400 border border-neutral-700/60 hover:text-neutral-200 hover:bg-neutral-800'
               }`}
             >
-              <span>{zone.name.split(' - ')[0]}</span>
-              <span className="text-[11px] opacity-70">({zone.crop.split(' ')[0]})</span>
+              <span className="font-semibold">{zone.name.split(' - ')[0]}</span>
+              <span className="text-[11px] text-emerald-400 font-medium">
+                {zone.crop.length > 20 ? zone.crop.split('&')[0].trim() : zone.crop}
+              </span>
+              <span className="text-[10px] font-mono text-neutral-500">
+                ({zone.areaHectares} Ha)
+              </span>
             </button>
           );
         })}

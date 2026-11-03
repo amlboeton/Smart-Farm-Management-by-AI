@@ -3,6 +3,7 @@
   "appId": "1:496164199695:web:82cfc528d770f66863727a",
   "apiKey": "AIzaSyAz-h5FiOPhui4quk7ynmwLwanKhTjiqNQ",
   "authDomain": "gen-lang-client-0670799205.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-agripulsesmartfa-bbdb2c69-9ef1-4bc6-97d0-55ec7f189b65",
   "storageBucket": "gen-lang-client-0670799205.firebasestorage.app",
   "messagingSenderId": "496164199695",
   "measurementId": "",

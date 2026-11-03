@@ -25,8 +25,10 @@ export default function App() {
       try {
         localStorage.removeItem('agripulse_zones_v1');
         localStorage.removeItem('agripulse_zones_v2');
+        localStorage.removeItem('agripulse_zones_v3');
         localStorage.removeItem('agripulse_selected_zone_id_v1');
         localStorage.removeItem('agripulse_selected_zone_id_v2');
+        localStorage.removeItem('agripulse_selected_zone_id_v3');
       } catch {}
     }
     const raw = getStoredItem<FarmZone[]>(STORAGE_KEYS.ZONES, INITIAL_ZONES);
@@ -37,8 +39,8 @@ export default function App() {
   });
 
   const [selectedZoneId, setSelectedZoneId] = useState<string>(() => {
-    const raw = getStoredItem<string>(STORAGE_KEYS.SELECTED_ZONE_ID, 'zone-a');
-    return raw === 'zone-c' ? 'zone-a' : raw;
+    const raw = getStoredItem<string>(STORAGE_KEYS.SELECTED_ZONE_ID, 'zone-gh-beef');
+    return raw === 'zone-c' || raw === 'zone-a' ? 'zone-gh-beef' : raw;
   });
 
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -243,23 +245,32 @@ export default function App() {
                 {/* Left Narrative */}
                 <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center gap-2 text-xs text-neutral-400 mb-2">
-                      <span>{selectedZone.category}</span>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400 mb-2">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-semibold">
+                        Lahan 10,9 Ha (Batas Garis Hijau)
+                      </span>
                       <span aria-hidden="true">·</span>
-                      <span>{selectedZone.crop}</span>
+                      <span className="text-white font-medium">{selectedZone.category}</span>
                       <span aria-hidden="true">·</span>
-                      <span>{selectedZone.areaHectares} Hektar Terpantau</span>
+                      <span className="text-emerald-400 font-semibold">{selectedZone.crop}</span>
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
                       {selectedZone.name}
                     </h1>
-                    <p className="mt-2.5 text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-xl">
-                      Pemantauan agronomi berbasis AI, sensorik tanah beresolusi tinggi, irigasi adaptif, dan proteksi tanaman presisi untuk memaksimalkan hasil panen dan efisiensi sumber daya.
+                    <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-xl">
+                      Pemantauan agronomi berbasis AI dan IoT di kebun PT Agricole Indonesia Makmur (10,9 Ha). Terdiri dari <strong>Greenhouse (Tomat Beef, Tomat Ceri)</strong> dan <strong>Open Field (Selada Romaine, Baby Spinach, Jagung Hokaido)</strong>.
                     </p>
+
+                    {/* 10.9 Ha Quick Summary Bar */}
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-neutral-400">
+                      <span className="text-sky-300">🏠 Greenhouse (3,2 Ha): Tomat Beef & Ceri</span>
+                      <span aria-hidden="true">|</span>
+                      <span className="text-emerald-300">🌱 Open Field (7,7 Ha): Selada, Spinach & Jagung</span>
+                    </div>
                   </div>
 
                   {/* Key Cycle Metadata Strip */}
-                  <div className="grid grid-cols-3 gap-3 pt-6 mt-4 border-t border-neutral-800/80 text-xs">
+                  <div className="grid grid-cols-3 gap-3 pt-4 mt-3 border-t border-neutral-800/80 text-xs">
                     <div>
                       <div className="text-[11px] text-neutral-500">Fase Tanaman</div>
                       <div className="text-neutral-200 font-medium truncate">{selectedZone.stage}</div>
@@ -277,15 +288,29 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right Aerial Photography Visual */}
-                <div className="lg:col-span-5 relative min-h-[240px] lg:min-h-full">
+                {/* Right Aerial Photography Visual with Drone 3D trigger */}
+                <div className="lg:col-span-5 relative min-h-[240px] lg:min-h-full group">
                   <img
                     src={selectedZone.image}
                     alt={selectedZone.name}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent lg:hidden"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-transparent to-transparent lg:hidden"></div>
+                  
+                  {/* Floating Overlay Badge */}
+                  <div className="absolute bottom-3 right-3 left-3 flex justify-between items-center">
+                    <span className="px-2 py-1 rounded bg-neutral-950/80 backdrop-blur-md text-[11px] text-neutral-200 font-mono border border-neutral-800">
+                      Survei Fotogrametri Drone
+                    </span>
+                    <button
+                      onClick={() => setActiveTab('drone')}
+                      className="px-2.5 py-1 rounded bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs font-bold transition-colors shadow-md flex items-center gap-1"
+                    >
+                      <span>🛸 Buka 3D Drone</span>
+                      <span className="text-[10px]">→</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
