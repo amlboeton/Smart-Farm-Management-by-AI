@@ -435,9 +435,10 @@ Berikan respons JSON murni:
 
 async function startServer() {
   const distPath = path.resolve(__dirname, 'dist');
-  const isProduction = process.env.NODE_ENV === 'production';
+  const hasDist = fs.existsSync(path.resolve(distPath, 'index.html'));
+  const isProduction = process.env.NODE_ENV === 'production' || hasDist;
 
-  if (isProduction && fs.existsSync(distPath)) {
+  if (isProduction && hasDist) {
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.resolve(distPath, 'index.html'));
@@ -451,7 +452,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://0.0.0.0:${PORT}`);
   });
 }
 
